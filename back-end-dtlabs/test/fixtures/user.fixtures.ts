@@ -5,6 +5,8 @@ export const mockUser: User = {
   name: 'Lailton Xavier',
   email: 'Lailton@example.com',
   password: 'hashedpassword',
+  devices: [],
+  notifications: []
 };
 
 export const mockUserData = {

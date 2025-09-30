@@ -40,16 +40,26 @@ describe('AuthController (e2e)', () => {
   });  
 
   it('/auth/login (POST) → 200 OK', async () => {
+    const email = `test-${Date.now()}@example.com`;
+    const password = '123456';
+  
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: 'Test User',
+        email,
+        password,
+      })
+      .expect(201);
+  
     const res = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({
-        email: 'test@example.com',
-        password: '123456',
-      })
+      .send({ email, password })
       .expect(200);
-
+  
     expect(res.body).toHaveProperty('accessToken');
   });
+  
 
   it('/auth/login (POST) → 401 Unauthorized', async () => {
     await request(app.getHttpServer())

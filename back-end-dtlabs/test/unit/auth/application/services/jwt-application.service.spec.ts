@@ -118,6 +118,7 @@ describe('JwtApplicationService', () => {
           id: mockUser.id,
           name: mockUser.name,
           email: mockUser.email,
+          password: "hashedpassword",
         },
         tokens: { accessToken: 'mock-token' },
       });

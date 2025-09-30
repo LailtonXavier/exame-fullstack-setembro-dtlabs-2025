@@ -1,6 +1,7 @@
 import { FindUserByIdUseCase } from '@/core/user/application/use-cases/find-user-by-id.use-case';
 import { NotFoundError } from '@/shared/core/errors/not-found.error';
 import { createUserTestingModule, userTestData } from '../../../../setup/integration/user-setup';
+import { randomUUID } from 'crypto';
 
 describe('FindUserByIdUseCase (Integration)', () => {
   let findUserByIdUseCase: FindUserByIdUseCase;
@@ -19,17 +20,23 @@ describe('FindUserByIdUseCase (Integration)', () => {
 
   it('should update a user in the database', async () => {
     const userData = userTestData.createValidUser();
+    const userId = randomUUID();
     const hashedPassword = await deps.encryptionService.hashPassword(userData.password);
+   
     await deps.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        ...userData,
+        id: userId,
+        password: hashedPassword,
+      },
     });
 
-    const result = await findUserByIdUseCase.execute('user-123');
+    const result = await findUserByIdUseCase.execute(userId);
 
     expect(result.isRight()).toBe(true);
 
     const updatedUserInDb = await deps.prisma.user.findUnique({
-      where: { id: 'user-123' },
+      where: { id: userId },
     });
 
     expect(updatedUserInDb).not.toBeNull();
@@ -39,12 +46,18 @@ describe('FindUserByIdUseCase (Integration)', () => {
 
   it('should return NotFoundError when user does not exist', async () => {
     const userData = userTestData.createValidUser();
+    const userId = randomUUID();
+    const userId2 = randomUUID();
     const hashedPassword = await deps.encryptionService.hashPassword(userData.password);
     await deps.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        ...userData,
+        id: userId,
+        password: hashedPassword,
+      },
     });
 
-    const result = await findUserByIdUseCase.execute('wrong-id');
+    const result = await findUserByIdUseCase.execute(userId2);
 
     expect(result.isLeft()).toBe(true);
     expect(result.value).toBeInstanceOf(NotFoundError);

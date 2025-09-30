@@ -21,7 +21,6 @@ describe('DeleteUserUseCase (Integration)', () => {
     const userData = userTestData.createValidUser();
     const createdUser = await deps.prisma.user.create({
       data: {
-        id: userData.id,
         name: userData.name,
         email: userData.email,
         password: await deps.encryptionService.hashPassword(userData.password),
@@ -43,7 +42,6 @@ describe('DeleteUserUseCase (Integration)', () => {
     const userData = userTestData.createValidUser();
     const createdUser = await deps.prisma.user.create({
       data: {
-        id: userData.id,
         name: userData.name,
         email: userData.email,
         password: await deps.encryptionService.hashPassword(userData.password),

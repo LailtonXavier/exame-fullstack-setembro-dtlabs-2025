@@ -33,7 +33,6 @@ export async function createUserTestingModule(additionalProviders: any[] = []) {
 
 export const userTestData = {
   createValidUser: () => ({
-    id: 'user-123',
     name: 'Lailton',
     email: 'lailton@example.com',
     password: 'password123',

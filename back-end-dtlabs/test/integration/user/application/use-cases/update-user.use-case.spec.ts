@@ -1,5 +1,6 @@
 import { UpdateUserUseCase } from '@/core/user/application/use-cases/update-user.use-case';
 import { createUserTestingModule, userTestData } from '../../../../setup/integration/user-setup';
+import { randomUUID } from 'crypto';
 
 describe('UpdateUserUseCase (Integration)', () => {
   let updateUserUseCase: UpdateUserUseCase;
@@ -18,19 +19,25 @@ describe('UpdateUserUseCase (Integration)', () => {
 
   it('should update a user in the database', async () => {
     const userData = userTestData.createValidUser();
+    const userId = randomUUID();
+    
     const hashedPassword = await deps.encryptionService.hashPassword(userData.password);
     await deps.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        ...userData,
+        id: userId,
+        password: hashedPassword,
+      },
     });
 
-    const result = await updateUserUseCase.execute('user-123', { 
+    const result = await updateUserUseCase.execute(userId, { 
       name: 'Updated Name' 
     });
 
     expect(result.isRight()).toBe(true);
 
     const updatedUserInDb = await deps.prisma.user.findUnique({
-      where: { id: 'user-123' },
+      where: { id: userId },
     });
 
     expect(updatedUserInDb).not.toBeNull();
@@ -40,19 +47,25 @@ describe('UpdateUserUseCase (Integration)', () => {
 
   it('should update user email when new email is available', async () => {
     const userData = userTestData.createValidUser();
+    const userId = randomUUID();
+    
     const hashedPassword = await deps.encryptionService.hashPassword(userData.password);
     await deps.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        ...userData,
+        id: userId,
+        password: hashedPassword,
+      },
     });
 
-    const result = await updateUserUseCase.execute('user-123', {
+    const result = await updateUserUseCase.execute(userId, {
       email: 'john.new@example.com'
     });
 
     expect(result.isRight()).toBe(true);
 
     const updatedUser = await deps.prisma.user.findUnique({
-      where: { id: 'user-123' },
+      where: { id: userId },
     });
 
     expect(updatedUser?.email).toBe('john.new@example.com');
@@ -61,17 +74,27 @@ describe('UpdateUserUseCase (Integration)', () => {
   it('should return error when updating to an email that already exists', async () => {
     const userData = userTestData.createValidUser();
     const userAnotherData = userTestData.createAnotherUser();
+    const userId = randomUUID();
+    const userId2 = randomUUID();
+    
     const hashedPassword = await deps.encryptionService.hashPassword(userData.password);
-
     await deps.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        ...userData,
+        id: userId,
+        password: hashedPassword,
+      },
     });
 
     await deps.prisma.user.create({
-      data: { ...userAnotherData, password: hashedPassword },
+      data: {
+        ...userAnotherData,
+        id: userId2,
+        password: hashedPassword,
+      },
     });
 
-    const result = await updateUserUseCase.execute('user-123', {
+    const result = await updateUserUseCase.execute(userId, {
       email: 'another@example.com'
     });
 
@@ -84,19 +107,25 @@ describe('UpdateUserUseCase (Integration)', () => {
     const newPassword = 'newpassword456';
 
     const userData = userTestData.createValidUser();
+    const userId = randomUUID();
+    
     const hashedPassword = await deps.encryptionService.hashPassword(userData.password);
     await deps.prisma.user.create({
-      data: { ...userData, password: hashedPassword },
+      data: {
+        ...userData,
+        id: userId,
+        password: hashedPassword,
+      },
     });
 
-    const result = await updateUserUseCase.execute('user-123', {
+    const result = await updateUserUseCase.execute(userId, {
       password: newPassword
     });
 
     expect(result.isRight()).toBe(true);
 
     const updatedUser = await deps.prisma.user.findUnique({
-      where: { id: 'user-123' },
+      where: { id: userId },
     });
 
     const isNewPasswordValid = await deps.encryptionService.comparePassword(
