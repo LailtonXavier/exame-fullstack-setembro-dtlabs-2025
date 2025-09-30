@@ -4,11 +4,10 @@ const BACKEND_URL =
   process.env.BACKEND_URL?.replace(/\/$/, "") || "http://backend:3000";
 const API_URL = `${BACKEND_URL}/heartbeats`;
 const LOGIN_URL = `${BACKEND_URL}/auth/login`;
-const USER_URL = `${BACKEND_URL}/users`; // ajuste se sua rota de "getuser" for diferente
+const USER_URL = `${BACKEND_URL}/users`;
 const LOGIN_EMAIL = process.env.LOGIN_EMAIL || "";
 const LOGIN_PASSWORD = process.env.LOGIN_PASSWORD || "";
-const INTERVAL_MS = 30_000; // 30 segundos
-// const INTERVAL_MS = 60_000; // 👉 1 minuto
+const INTERVAL_MS = 60_000;
 
 let USER_TOKEN = "";
 let USER_DEVICES = [];
@@ -112,7 +111,7 @@ async function sendHeartbeat() {
 
 (async () => {
   console.log("🚀 Iniciando simulador de heartbeats...");
-  await fetchUserDevices(); // busca os devices uma vez no início
-  setInterval(sendHeartbeat, INTERVAL_MS); // roda a cada 30 segundos
-  sendHeartbeat().catch(() => {}); // manda um na largada
+  await fetchUserDevices();
+  setInterval(sendHeartbeat, INTERVAL_MS);
+  sendHeartbeat().catch(() => {});
 })();
