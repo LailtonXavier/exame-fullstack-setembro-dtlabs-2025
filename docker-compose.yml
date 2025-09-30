@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dtlabsdb
+    ports:
+      - "5439:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./back-end-dtlabs
+    container_name: backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/dtlabsdb?schema=public
+      JWT_SECRET: seuSegredoMuitoSecreto
+      JWT_REFRESH_SECRET: super_secret_refresh_key_456
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  simulator:
+    build:
+      context: ./heartbeat-simulator
+    container_name: simulator
+    environment:
+      BACKEND_URL: http://backend:3000
+      LOGIN_EMAIL: lailton@gmail.com
+      LOGIN_PASSWORD: senha22
+      INTERVAL_MS: "10000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
