@@ -46,8 +46,6 @@ export class GetHeartbeatsUseCase {
 
     const heartbeats = await this.repo.findByDeviceAndDateRange(deviceId, from, to);
 
-    if (heartbeats.length === 0) return left(new NotFoundException('No heartbeats found'));
-
     return right(heartbeats);
   }
 }
